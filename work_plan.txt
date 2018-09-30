@@ -1,0 +1,18 @@
+﻿Lab 1 Work Plan
+Daniel Connolly and Josh Deng
+
+
+Test Bench:
+We will start by implementing a test bench for all of the operations, logical and arithmetic, that our ALU will perform. We will need to come up with and understand our high-level design in order to implement this, which will be a task of its own. Additionally, in order to determine the expected output of ALU, we may need to work out a variety of cases by hand before implementing them in the test bench. As a result, we expect this task to take around two hours.
+
+
+ALU Design:
+We will design our 32-bit ALU through bit slices with individual logic gates for logic operations and a ripple carry adder for arithmetic operations. If the time allows, we would pursue alternative adder designs, such as carry-lookahead or Kogge-Stone adders. This would be the major part of this lab, and we should expect three to four hours in designing the 32-bit ALU. The additional stretch goal would take another one to two hours.
+
+
+Timing Analysis:
+We will need to analyze the performance of our design. We will start by simply simulating the propagation delays, but may choose to calculate them by hand if we have time. We expect this task to take at most one hour for the simulation and another one hour to do the calculations by hand.
+
+
+Report:
+Once we have completed the lab, or at least an MVP of the lab, we will need to work on our report, which is intended to be read by the project manager in charge of the CPU. We expect this task to take three hours.
