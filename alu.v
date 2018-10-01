@@ -60,13 +60,13 @@ module ALUcontrolLUT
   always @(ALUcommand) begin
     case (ALUcommand)
       `ADD:  begin muxindex = 0; invertB=0; othercontrolsignal = 0; end
-      `SUB:  begin muxindex = 1; invertB=0; othercontrolsignal = 0; end
-      `XOR1:  begin muxindex = 2; invertB=1; othercontrolsignal = 0; end
-      `SLT:  begin muxindex = 3; invertB=0; othercontrolsignal = 0; end
-      `AND1:  begin muxindex = 4; invertB=1; othercontrolsignal = 0; end
+      `SUB:  begin muxindex = 1; invertB=1; othercontrolsignal = 0; end
+      `XOR1:  begin muxindex = 2; invertB=0; othercontrolsignal = 0; end
+      `SLT:  begin muxindex = 3; invertB=1; othercontrolsignal = 0; end
+      `AND1:  begin muxindex = 4; invertB=0; othercontrolsignal = 0; end
       `NAND1: begin muxindex = 5; invertB=0; othercontrolsignal = 0; end
       `NOR1:  begin muxindex = 6; invertB=0; othercontrolsignal = 0; end
-      `OR1:   begin muxindex = 7; invertB=1; othercontrolsignal = 0; end
+      `OR1:   begin muxindex = 7; invertB=0; othercontrolsignal = 0; end
     endcase
   end
 endmodule

@@ -26,18 +26,18 @@ module testALU();
   initial begin
     $dumpfile("alu.vcd");
     $dumpvars(0, dut);
-    a = 32'sd0; b = 32'sd0; cmd = 3'd0; #1000
+    a = 32'sd0; b = 32'sd0; cmd = 3'd0; #100
     $display("  A      B    Command | Result  Carryout  Overflow  Zero | Expected Output");
 
     /* Adder Test */
-    a = 32'sd0; b = 32'sd0; cmd = 3'd0; #1000
+    a = 32'sd2; b = 32'sd1; cmd = 3'd0; #1000
     $display("%d    %d     %d  |  %d   %d    %d    %d   |   0...", a, b, cmd, res, cout, ovf, zero);
     if(res != a+b) begin
-      $display("adder fault with a=%b and b=%b", a, b);
+      $display("adder fault with a=%d and b=%d", a, b);
     end
 
     //  a positive int to another int
-    a = 32'sd1; b = 32'sd3; cmd = 3'd0; #1000
+    a = 32'b11111111111111111111111111111111; b = 32'b00000000000000000000000000000000; cmd = 3'd4; #1000
     $display("%d    %d     %d  |  %d   %d    %d    %d   |   4...", a, b, cmd, res, cout, ovf, zero);
     if(res != a+b) begin
       $display("adder fault with a=%b and b=%b", a, b);
