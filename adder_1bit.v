@@ -1,9 +1,9 @@
-`define NOT not #50
-`define AND and #50
-`define OR or #50
-`define NAND nand #50
-`define NOR nor #50
-`define XOR xor #50
+`define NOT not #10
+`define NAND nand #20
+`define AND and #30
+`define NOR nor #20
+`define OR or #30
+`define XOR xor #20
 
 module structuralFullAdder
 (

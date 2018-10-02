@@ -1,14 +1,13 @@
 `define NOT not #10
 `define NOT3 not #30
-`define NAND and #20
+`define NAND nand #20
 `define NOR nor #20
 `define NOR32 nor #320
 `define AND and #30
 `define AND4 and #50 // 4 inputs plus inverter
 `define OR or #30
-`define OR8 or #90 // 8 inputs plus inverter
-`define NXOR and #20
-`define XOR nor #30
+`define OR5 or #60 // 5 inputs plus inverter
+`define XOR xor #30
 
 `define ADD  3'd0
 `define SUB  3'd1
@@ -20,7 +19,6 @@
 `define OR1   3'd7
 
 `include "adder_1bit.v"
-/* `include "adder.v" */
 
 module ALU_slice
 (
@@ -35,11 +33,10 @@ module ALU_slice
   input[2:0] muxindex
 );
   wire bOut;
-  wire addSubtract, subtract, xorgate, andgate, nandgate, norgate, orgate, norOut, nandOut;
+  wire addSubtract, xorgate, andgate, nandgate, norgate, orgate, norOut, nandOut;
 
   `XOR invB(bOut, b, invertB);
   structuralFullAdder adder(.sum(addSubtract), .carryout(carryout), .a(a), .b(bOut), .carryin(carryin));
-  // structuralFullAdder subtractor(.sum(subtract), .carryout(carryout), .a(a), .b(nb), .carryin(carryin));
 
   `NOR AnorB(norgate, a, b);
   `XOR AxorB(xorgate, a, b);
@@ -47,11 +44,35 @@ module ALU_slice
   `XOR invOutNor(norOut, invertOut, norgate);
   `XOR invOutNand(nandOut, invertOut, nandgate);
 
-  // `AND AandB(andgate, a, b);
-  // `OR AorB(orgate, a, b);
-
   multiplexer mux(result, addSubtract, xorgate, slt, nandOut, norOut, muxindex);
-  // multiplexer mux(result, add, subtract, xorgate, slt, andgate, nandgate, norgate, orgate, muxindex);
+endmodule
+
+module ALU_slice_MSB
+(
+  output result,  // 2's complement sum of a and b
+  output carryout,  // Carry out of the summation of a and b
+  output set,
+  input a,     // First operand in 2's complement format
+  input b,     // Second operand in 2's complement format
+  input carryin,     // carryin for subtraction in the future,
+  input slt,   // for set less than
+  input invertB,
+  input invertOut,
+  input[2:0] muxindex
+);
+  wire bOut;
+  wire xorgate, andgate, nandgate, norgate, orgate, norOut, nandOut;
+
+  `XOR invB(bOut, b, invertB);
+  structuralFullAdder adder(.sum(set), .carryout(carryout), .a(a), .b(bOut), .carryin(carryin));
+
+  `NOR AnorB(norgate, a, b);
+  `XOR AxorB(xorgate, a, b);
+  `NAND AnandB(nandgate, a, b);
+  `XOR invOutNor(norOut, invertOut, norgate);
+  `XOR invOutNand(nandOut, invertOut, nandgate);
+
+  multiplexer mux(result, set, xorgate, slt, nandOut, norOut, muxindex);
 endmodule
 
 module ALUcontrolLUT
@@ -86,13 +107,13 @@ input[31:0]   operandA,
 input[31:0]   operandB,
 input[2:0]    command
 );
-	// Your code here
+
   wire[30:0] Cout;
   wire [2:0] muxindex, ALUcommand;
-  wire invertB, invertOut;
+  wire invertB, invertOut, set;
   ALUcontrolLUT control(.muxindex(muxindex), .invertB(invertB), .invertOut(invertOut), .ALUcommand(command));
 
-  ALU_slice aluOneBit0(.result(result[0]), .carryout(Cout[0]), .a(operandA[0]), .b(operandB[0]), .carryin(invertB), .slt(result[32]), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
+  ALU_slice aluOneBit0(.result(result[0]), .carryout(Cout[0]), .a(operandA[0]), .b(operandB[0]), .carryin(invertB), .slt(set), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
   ALU_slice aluOneBit1(.result(result[1]), .carryout(Cout[1]), .a(operandA[1]), .b(operandB[1]), .carryin(Cout[0]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
   ALU_slice aluOneBit2(.result(result[2]), .carryout(Cout[2]), .a(operandA[2]), .b(operandB[2]), .carryin(Cout[1]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
   ALU_slice aluOneBit3(.result(result[3]), .carryout(Cout[3]), .a(operandA[3]), .b(operandB[3]), .carryin(Cout[2]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
@@ -123,24 +144,23 @@ input[2:0]    command
   ALU_slice aluOneBit28(.result(result[28]), .carryout(Cout[28]), .a(operandA[28]), .b(operandB[28]), .carryin(Cout[27]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
   ALU_slice aluOneBit29(.result(result[29]), .carryout(Cout[29]), .a(operandA[29]), .b(operandB[29]), .carryin(Cout[28]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
   ALU_slice aluOneBit30(.result(result[30]), .carryout(Cout[30]), .a(operandA[30]), .b(operandB[30]), .carryin(Cout[29]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
-  ALU_slice aluOneBit31(.result(result[31]), .carryout(carryout), .a(operandA[31]), .b(operandB[31]), .carryin(Cout[30]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
+  ALU_slice_MSB aluOneBit31(.result(result[31]), .carryout(carryout), .set(set), .a(operandA[31]), .b(operandB[31]), .carryin(Cout[30]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
 
   `XOR ovf(overflow, carryout, Cout[30]);
-  `NOR32 zero_out(zero, result);
+  `NOR32 zero_out(zero, result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8],result[9],result[10],result[11],result[12],result[13],result[14],result[15],result[16],result[17],result[18],result[19],result[20],result[21],result[22],result[23],result[24],result[25],result[26],result[27],result[28],result[29],result[30],result[31]);
 endmodule
 
 
 module multiplexer
 (
   output out,
-  input a0, a1, a2, a3, a4, //a5, a6, a7,
+  input a0, a1, a2, a3, a4,
   input[2:0] select
 );
   wire ns0, ns1, ns2;
   wire addWire, subtractWire, xorWire, sltWire;
   wire andWire, nandWire, norWire, orWire;
 
-  // `NOT3 selectInv(nselect, select);
   `NOT s0inv(ns0, select[0]);
   `NOT s1inv(ns1, select[1]);
   `NOT s2inv(ns2, select[2]);
@@ -151,15 +171,5 @@ module multiplexer
   `AND4 andgateNand(nandWire, ns2, select[1], select[0], a3);
   `AND4 andgateNor(norWire, select[2], ns1, ns0, a4);
 
-  // `AND4 andgateSubtract(subtractWire, ns2, ns1, select[0], a0);
-  // `AND4 andgateXor(xorWire, ns2, select[1], ns0, a1);
-  // `AND4 andgateSlt(sltWire, ns2, select[1], select[0], a2);
-  //
-  // // `AND4 andgateAnd(andWire, select[2], ns1, ns0, a4);
-  // `AND4 andgateNand(nandWire, select[2], ns1, select[0], a3);
-  // `AND4 andgateNor(norWire, select[2], select[1], ns0, a4);
-  // `AND4 andgateOR(orWire, select[2], select[1], select[0], a7);
-  `OR8 orgateOut(out, addWire, xorWire, sltWire, nandWire, norWire);
-
-  // `OR8 orgateOut(out, addWire, subtractWire, xorWire, sltWire, andWire, nandWire, norWire, orWire);
+  `OR5 orgateOut(out, addWire, xorWire, sltWire, nandWire, norWire);
 endmodule
