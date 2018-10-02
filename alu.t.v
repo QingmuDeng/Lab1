@@ -27,39 +27,74 @@ module testALU();
     $dumpfile("alu.vcd");
     $dumpvars(0, dut);
     a = 32'sd0; b = 32'sd0; cmd = `ADD; #100
-    $display("         A           B    Cmd | Res  Cout  Ovf  Zero | Expected Output");
+    $display("          A              B    Cmd |          Res Cout  Ovf  Zero | Expected");
 
     /* Adder Test */
     a = 32'sd2; b = 32'sd1; cmd = `ADD; #1000
-    $display("%d    %d     %d  |  %d   %d    %d    %d   |   0...", a, b, cmd, res, cout, ovf, zero);
+    $display("%d    %d     %d  |  %d   %d    %d    %d   |   3...", a, b, cmd, res, cout, ovf, zero);
     if(res != a+b) begin
       $display("adder fault with a=%d and b=%d", a, b);
     end
 
     //  a positive int to another int
     a = 32'sd2312; b = 32'sd123; cmd = `ADD; #1000
-    $display("%d    %d     %d  |  %d   %d    %d    %d   |   4...", a, b, cmd, res, cout, ovf, zero);
+    $display("%d    %d     %d  |  %d   %d    %d    %d   |   2435...", a, b, cmd, res, cout, ovf, zero);
     if(res != a+b) begin
       $display("adder fault with a=%b and b=%b", a, b);
     end
 
+    //  a positive int to another int
+    a = 32'sd543290; b = 32'sd34124123; cmd = `ADD; #1000
+    $display("%d    %d     %d  |  %d   %d    %d    %d   |   34667413...", a, b, cmd, res, cout, ovf, zero);
+    if(res != a+b) begin
+      $display("adder fault with a=%b and b=%b", a, b);
+    end
+
+    //  a positive int to another int
+    a = 32'sd4; b = 32'sd2; cmd = `SUB; #1000
+    $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    if(res != a-b) begin
+      $display("subtractor fault with a=%b and b=%b", a, b);
+    end
+
+    //  a positive int to another int
+    a = 32'sd4; b = 32'sd2; cmd = `SLT; #1000
+    $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    if(res != (a > b)) begin
+      $display("SLT fault with a=%b and b=%b", a, b);
+    end
+
+    //  a positive int to another int
+    a = 32'sd4; b = 32'sd2; cmd = `XOR; #1000
+    $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    // if(res != a+b) begin
+    //   $display("XOR fault with a=%b and b=%b", a, b);
+    // end
+
+    //  a positive int to another int
+    a = 32'sd4; b = 32'sd2; cmd = `NAND; #1000
+    $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    // if(res != a+b) begin
+    //   $display("NAND fault with a=%b and b=%b", a, b);
+    // end
+
     // a positive int to a negative int to get a positive int
     a = 32'sd4; b = -32'sd2; cmd = `ADD; #1000
-    $display("%d    %d     %d  |  %d   %d    %d    %d   |   4...", a, b, cmd, res, cout, ovf, zero);
+    $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
     if(res != a+b) begin
       $display("adder fault with a=%b and b=%b", a, b);
     end
 
     // a positive int to a negative int to get a negative int
-    a = 32'sd5; b = -32'sd7; cmd = `ADD; #1000
-    $display("%d    %d     %d  |  %d   %d    %d    %d   |   4...", a, b, cmd, res, cout, ovf, zero);
+    a = -32'sd5; b = -32'sd7; cmd = `ADD; #1000
+    $display("%d    %d     %d  |  %d   %d    %d    %d   |   -12...", a, b, cmd, res, cout, ovf, zero);
     if(res != a+b) begin
       $display("adder fault with a=%b and b=%b", a, b);
     end
 
     // a positive int to a negative int to get a negative int
     a = 32'sd1; b = 32'sd1; cmd = `ADD; #1000
-    $display("%d    %d     %d  |  %d   %d    %d    %d   |   4...", a, b, cmd, res, cout, ovf, zero);
+    $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
     if(res != a+b) begin
       $display("adder fault with a=%b and b=%b", a, b);
     end

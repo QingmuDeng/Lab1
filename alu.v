@@ -34,11 +34,11 @@ module ALU_slice
   input invertOut,
   input[2:0] muxindex
 );
-  wire nb;
+  wire bOut;
   wire addSubtract, subtract, xorgate, andgate, nandgate, norgate, orgate, norOut, nandOut;
 
-  `XOR invB(nb, b, invertB);
-  structuralFullAdder adder(.sum(addSubtract), .carryout(carryout), .a(a), .b(nb), .carryin(carryin));
+  `XOR invB(bOut, b, invertB);
+  structuralFullAdder adder(.sum(addSubtract), .carryout(carryout), .a(a), .b(bOut), .carryin(carryin));
   // structuralFullAdder subtractor(.sum(subtract), .carryout(carryout), .a(a), .b(nb), .carryin(carryin));
 
   `NOR AnorB(norgate, a, b);
@@ -90,7 +90,7 @@ input[2:0]    command
   wire[30:0] Cout;
   wire [2:0] muxindex, ALUcommand;
   wire invertB, invertOut;
-  ALUcontrolLUT control(muxindex, invertB, invertOut, command);
+  ALUcontrolLUT control(.muxindex(muxindex), .invertB(invertB), .invertOut(invertOut), .ALUcommand(command));
 
   ALU_slice aluOneBit0(.result(result[0]), .carryout(Cout[0]), .a(operandA[0]), .b(operandB[0]), .carryin(invertB), .slt(result[32]), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
   ALU_slice aluOneBit1(.result(result[1]), .carryout(Cout[1]), .a(operandA[1]), .b(operandB[1]), .carryin(Cout[0]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
@@ -146,13 +146,18 @@ module multiplexer
   `NOT s2inv(ns2, select[2]);
 
   `AND4 andgateAdd(addWire, ns2, ns1, ns0, a0);
-  // `AND4 andgateSubtract(subtractWire, ns2, ns1, select[0], a0);
-  `AND4 andgateXor(xorWire, ns2, select[1], ns0, a1);
-  `AND4 andgateSlt(sltWire, ns2, select[1], select[0], a2);
+  `AND4 andgateXor(xorWire, ns2, ns1, select[0], a1);
+  `AND4 andgateSlt(sltWire, ns2, select[1], ns0, a2);
+  `AND4 andgateNand(nandWire, ns2, select[1], select[0], a3);
+  `AND4 andgateNor(norWire, select[2], ns1, ns0, a4);
 
-  // `AND4 andgateAnd(andWire, select[2], ns1, ns0, a4);
-  `AND4 andgateNand(nandWire, select[2], ns1, select[0], a3);
-  `AND4 andgateNor(norWire, select[2], select[1], ns0, a4);
+  // `AND4 andgateSubtract(subtractWire, ns2, ns1, select[0], a0);
+  // `AND4 andgateXor(xorWire, ns2, select[1], ns0, a1);
+  // `AND4 andgateSlt(sltWire, ns2, select[1], select[0], a2);
+  //
+  // // `AND4 andgateAnd(andWire, select[2], ns1, ns0, a4);
+  // `AND4 andgateNand(nandWire, select[2], ns1, select[0], a3);
+  // `AND4 andgateNor(norWire, select[2], select[1], ns0, a4);
   // `AND4 andgateOR(orWire, select[2], select[1], select[0], a7);
   `OR8 orgateOut(out, addWire, xorWire, sltWire, nandWire, norWire);
 
