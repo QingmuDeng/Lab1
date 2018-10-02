@@ -1,3 +1,3 @@
 iverilog -o alu alu.t.v 
 ./alu
-gtkwave alu.vcd 
+# gtkwave alu.vcd 
