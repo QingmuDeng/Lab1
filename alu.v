@@ -46,7 +46,7 @@ module ALU_slice
   `XOR AxorB(xorgate, a, b);
   `NAND AnandB(nandgate, a, b);
 
-  multiplexer mux(.out(result), .a({add, subtract, xorgate, slt, andgate, nandgate, norgate, orgate}), .select(muxindex));
+  multiplexer mux(result, add, subtract, xorgate, slt, andgate, nandgate, norgate, orgate, muxindex);
 endmodule
 
 module ALUcontrolLUT
@@ -128,7 +128,7 @@ endmodule
 module multiplexer
 (
   output out,
-  input[7:0] a,
+  input a0, a1, a2, a3, a4, a5, a6, a7,
   input[2:0] select
 );
   wire[2:0] nselect;
@@ -141,15 +141,15 @@ module multiplexer
   `NOT s1inv(ns1, select[1]);
   `NOT s2inv(ns2, select[2]);
 
-  `AND4 andgateA0(a0ns2ns1ns0, ns2, ns1, ns0, a[0]);
-  `AND4 andgateA1(a1ns2ns1s0, ns2, ns1, select[0], a[1]);
-  `AND4 andgateA2(a2ns2s1ns0, ns2, select[1], ns0, a[2]);
-  `AND4 andgateA3(a3ns2s1s0, ns2, select[1], select[0], a[3]);
+  `AND4 andgateA0(a0ns2ns1ns0, ns2, ns1, ns0, a0);
+  `AND4 andgateA1(a1ns2ns1s0, ns2, ns1, select[0], a1);
+  `AND4 andgateA2(a2ns2s1ns0, ns2, select[1], ns0, a2);
+  `AND4 andgateA3(a3ns2s1s0, ns2, select[1], select[0], a3);
 
-  `AND4 andgateA4(a4s2ns1ns0, select[2], ns1, ns0, a[4]);
-  `AND4 andgateA5(a5s2ns1s0, select[2], ns1, select[0], a[5]);
-  `AND4 andgateA6(a6s2s1ns0, select[2], select[1], ns0, a[6]);
-  `AND4 andgateA7(a7s2s1s0, select[2], select[1], select[0], a[7]);
+  `AND4 andgateA4(a4s2ns1ns0, select[2], ns1, ns0, a4);
+  `AND4 andgateA5(a5s2ns1s0, select[2], ns1, select[0], a5);
+  `AND4 andgateA6(a6s2s1ns0, select[2], select[1], ns0, a6);
+  `AND4 andgateA7(a7s2s1s0, select[2], select[1], select[0], a7);
 
   `OR8 orgateOut(out, a0ns2ns1ns0, a1ns2ns1s0, a2ns2s1ns0, a3ns2s1s0, a4s2ns1ns0, a5s2ns1s0, a6s2s1ns0, a7s2s1s0);
 endmodule

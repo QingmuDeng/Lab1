@@ -37,7 +37,7 @@ module testALU();
     end
 
     //  a positive int to another int
-    a = 32'b11111111111111111111111111111111; b = 32'b00000000000000000000000000000000; cmd = 3'd4; #1000
+    a = 32'sd2312; b = 32'sd123; cmd = 3'd0; #1000
     $display("%d    %d     %d  |  %d   %d    %d    %d   |   4...", a, b, cmd, res, cout, ovf, zero);
     if(res != a+b) begin
       $display("adder fault with a=%b and b=%b", a, b);
