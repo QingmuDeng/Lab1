@@ -19,55 +19,79 @@ module testALU();
   reg signed [31:0]     b;
   reg[2:0]      cmd;
 
+  
   ALU dut(.result(res), .carryout(cout), .zero(zero), .overflow(ovf), .operandA(a), .operandB(b), .command(cmd));
+
+  task zero_test;
+    if((res==0) && (zero!=1)) begin
+      $display("ZERO fault with a=%b, b=%b, res=%d and zero=%d.", a, b, res, zero);
+    end
+  endtask
+
+  // task cout_test;
+
+  // endtask
+
+  // task overflow_test;
+
+  // endtask
 
   task add_test;
     begin
       if(res != a+b) $display("Adder fault with a=%d and b=%d. The proper result is %d, but the received is %d.", a, b, a+b, res);
+      zero_test();
     end
   endtask
 
   task subtractor_test;
     begin
       if(res != a-b)  $display("subtractor fault with a=%d and b=%d. The proper result is %d, but the received is %d.", a, b, a-b, res);
+      zero_test();
     end
   endtask
 
   task stl_test;
     begin
       if(res != (a<b)) $display("SLT fault with a=%d and b=%d. The proper result is %d, but the received is %d.", a, b, a<b, res);
+      zero_test();
     end
   endtask
 
   task xor_test;
     begin
       if(res != (a^b)) $display("XOR Logic fault with a=%b and b=%b. The proper result is %d, but the received is %d.", a, b, a^b, res);
+      zero_test();
     end
   endtask
 
   task nand_test;
     begin
       if(res != ~(a&b)) $display("NAND Logic fault with a=%b and b=%b. The proper result is %d, but the received is %d.", a, b, ~(a&b), res);
+      zero_test();
     end
   endtask
 
   task and_test;
     begin
       if(res != (a&b)) $display("AND Logic fault with a=%b and b=%b. The proper result is %d, but the received is %d.", a, b, (a&b), res);
+      zero_test();
     end
   endtask
 
   task nor_test;
     begin
       if(res != ~(a|b)) $display("NOR Logic fault with a=%b and b=%b. The proper result is %d, but the received is %d.", a, b, ~(a|b), res);
+      zero_test();
     end
   endtask
 
   task or_test;
     begin
       if(res != (a|b)) $display("OR Logic fault with a=%b and b=%b. The proper result is %d, but the received is %d.", a, b, (a|b), res);
+      zero_test();
     end
   endtask
+
 
   initial begin
     $dumpfile("alu.vcd");
@@ -127,7 +151,5 @@ module testALU();
 
     /**************************** OR Logic Test ****************************/
     a = 32'sb1101111; b = 32'sb1111100; cmd = `OR; #1000 or_test();
-
-
   end
 endmodule
