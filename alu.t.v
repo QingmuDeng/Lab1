@@ -51,10 +51,10 @@ module testALU();
     end
 
     //  a positive int to another int
-    a = 32'sd4; b = 32'sd2; cmd = `SUB; #1000
+    a = 32'sd4; b = 32'sd2; cmd = `SUB; #10000
     $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
     if(res != a-b) begin
-      $display("subtractor fault with a=%b and b=%b", a, b);
+      $display("subtractor fault with a=%b and b=%b, the result should be %d", a, b, a-b);
     end
 
     //  a positive int to another int
@@ -79,7 +79,7 @@ module testALU();
     // end
 
     // a positive int to a negative int to get a positive int
-    a = 32'sd4; b = -32'sd2; cmd = `ADD; #1000
+    a = 32'sd4; b = -32'sd2; cmd = `ADD; #10000
     $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
     if(res != a+b) begin
       $display("adder fault with a=%b and b=%b", a, b);
