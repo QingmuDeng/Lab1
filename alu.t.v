@@ -19,7 +19,7 @@ module testALU();
   reg signed [31:0]     b;
   reg[2:0]      cmd;
 
-  
+
   ALU dut(.result(res), .carryout(cout), .zero(zero), .overflow(ovf), .operandA(a), .operandB(b), .command(cmd));
 
   task zero_test;
@@ -100,56 +100,143 @@ module testALU();
     // $display("          A              B    Cmd |          Res Cout  Ovf  Zero | Expected");
 
     /****************************   Adder Test   ****************************/
-    a = 32'sd2; b = 32'sd1; cmd = `ADD; #1000 add_test();
-    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   3...", a, b, cmd, res, cout, ovf, zero);
-    
+    // Adding a positive integer to a positive integer, without overflow
+    a = 32'sd2; b = 32'sd1; cmd = `ADD; #10000 add_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   3", a, b, cmd, res, cout, ovf, zero);
 
-    a = 32'sd2312; b = 32'sd123; cmd = `ADD; #1000 add_test();
-    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2435...", a, b, cmd, res, cout, ovf, zero);
+    a = 32'sd2312; b = 32'sd123; cmd = `ADD; #10000 add_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2435", a, b, cmd, res, cout, ovf, zero);
 
-    a = 32'sd543290; b = 32'sd34124123; cmd = `ADD; #1000 add_test();
-    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   34667413...", a, b, cmd, res, cout, ovf, zero);
+    a = 32'sd543290; b = 32'sd34124123; cmd = `ADD; #10000 add_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   34667413", a, b, cmd, res, cout, ovf, zero);
 
+    // The "zero case"
+    a = 32'sd0; b = 32'sd0; cmd = `ADD; #10000 add_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   0", a, b, cmd, res, cout, ovf, zero);
+
+    // Adding a positive integer to a negative integer to get a positive integer
     a = 32'sd4; b = -32'sd2; cmd = `ADD; #10000 add_test();
-    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2", a, b, cmd, res, cout, ovf, zero);
 
-    a = -32'sd5; b = -32'sd7; cmd = `ADD; #1000 add_test();
-    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -12...", a, b, cmd, res, cout, ovf, zero);
+    // Adding a negative integer to a negative integer, without overflow
+    a = -32'sd5; b = -32'sd7; cmd = `ADD; #10000 add_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -12", a, b, cmd, res, cout, ovf, zero);
 
-    a = 32'sd1; b = 32'sd1; cmd = `ADD; #1000 add_test();
-    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    // Adding a positive integer to a negative integer to get a negative integer
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -2", a, b, cmd, res, cout, ovf, zero);
+    a = 32'sd5; b = -32'sd7; cmd = `ADD; #10000 add_test();
+
+    // Adding zero to a positive integer
+    a = 32'sd0; b = 32'sd1321; cmd = `ADD; #10000 add_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   1321", a, b, cmd, res, cout, ovf, zero);
+
+    // Adding zero to a negative integer
+    a = -32'sd1213; b = 32'sd0; cmd = `ADD; #10000 add_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -1213", a, b, cmd, res, cout, ovf, zero);
+
+    // The "all one" case
+    a = -32'sd1; b = -32'sd1; cmd = `ADD; #10000 add_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -2", a, b, cmd, res, cout, ovf, zero);
+
+
+    // Overflow Tests
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   Overflow", a, b, cmd, res, cout, ovf, zero);
+    a = 32'sd2147483647; b = 32'sd1; cmd = `ADD; #10000 add_test();
+
+    a = -32'sd2147483648; b = -32'sd1; cmd = `ADD; #10000 add_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   Overflow", a, b, cmd, res, cout, ovf, zero);
+
 
     /**************************** Subtractor Test ****************************/
+    // Subtracting a positive integer from a positive integer to get a positive integer
     a = 32'sd4; b = 32'sd2; cmd = `SUB; #10000 subtractor_test();
-    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2", a, b, cmd, res, cout, ovf, zero);
 
-
+    // Subtracting a positive integer from a positive integer to get zero
     a = 32'sd100; b = 32'sd100; cmd = `SUB; #10000 subtractor_test();
-    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   0", a, b, cmd, res, cout, ovf, zero);
+
+    // Subtracting zero from a positive integer
+    a = 32'sd107; b = 32'sd0; cmd = `SUB; #10000 subtractor_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   107", a, b, cmd, res, cout, ovf, zero);
+
+    // The "all zero" case
+    a = 32'sd0; b = 32'sd0; cmd = `SUB; #10000 subtractor_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   0", a, b, cmd, res, cout, ovf, zero);
+
+    // Subtracting zero from a negative integer
+    a = -32'sd3421; b = 32'sd0; cmd = `SUB; #10000 subtractor_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -3421", a, b, cmd, res, cout, ovf, zero);
+
+    // Subtracting a negative integer from a negative integer to get a negative integer
+    a = -32'sd1450; b = -32'sd550; cmd = `SUB; #10000 subtractor_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -900", a, b, cmd, res, cout, ovf, zero);
+
+    // Subtracting a negative integer from a negative integer to get a positive integer
+    a = -32'sd550; b = -32'sd1450; cmd = `SUB; #10000 subtractor_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   900", a, b, cmd, res, cout, ovf, zero);
+
+    // Subtracting a positive integer from a positive integer to get a negative integer
+    a = 32'sd550; b = 32'sd1450; cmd = `SUB; #10000 subtractor_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -900", a, b, cmd, res, cout, ovf, zero);
+
+    // Subtracting a negative integer from a positive integer
+    a = 32'sd2500; b = -32'sd324; cmd = `SUB; #10000 subtractor_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2824", a, b, cmd, res, cout, ovf, zero);
+
+    // Subtracting a positive integer from a negative integer
+    a = -32'sd231; b = 32'sd43; cmd = `SUB; #10000 subtractor_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -274", a, b, cmd, res, cout, ovf, zero);
+
+    // Overflow Tests
+    a = -32'sd2147483648; b = 32'sd30; cmd = `SUB; #10000 subtractor_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   Overflow", a, b, cmd, res, cout, ovf, zero);
+
+    a = 32'sd2147483647; b = -32'sd3; cmd = `SUB; #10000 subtractor_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   Overflow", a, b, cmd, res, cout, ovf, zero);
 
     /**************************** Set Less Than Test ****************************/
-    a = 32'sd4; b = 32'sd2; cmd = `SLT; #1000 stl_test();
-    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    // A > B, A > 0, B > 0
+    a = 32'sd4; b = 32'sd2; cmd = `SLT; #10000 stl_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   0", a, b, cmd, res, cout, ovf, zero);
 
+    // A < B, A > 0, B > 0
     a = 32'sd2; b = 32'sd4; cmd = `SLT; #10000 stl_test();
-    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
-    
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   1", a, b, cmd, res, cout, ovf, zero);
+
+    // A < B, A < 0, B < 0
+    a = -32'sd123; b = -32'sd21; cmd = `SLT; #10000 stl_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   1", a, b, cmd, res, cout, ovf, zero);
+
+    // A > B, A < 0, B < 0
+    a = -32'sd23423; b = -32'sd43213; cmd = `SLT; #10000 stl_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   0", a, b, cmd, res, cout, ovf, zero);
+
+    // A > B, A > 0, B < 0
+    a = 32'sd23423; b = -32'sd43213; cmd = `SLT; #10000 stl_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   0", a, b, cmd, res, cout, ovf, zero);
+
+    // A < B, A < 0, B > 0
+    a = -32'sd23423; b = 32'sd43213; cmd = `SLT; #10000 stl_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   1", a, b, cmd, res, cout, ovf, zero);
+
+
     /**************************** XOR Logic Test ****************************/
-    a = 32'sd4; b = 32'sd2; cmd = `XOR; #1000 xor_test();
+    a = 32'sd4; b = 32'sd2; cmd = `XOR; #10000 xor_test();
     // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
 
     /**************************** NAND Logic Test ****************************/
-    a = 32'sb1101111; b = 32'sb1111100; cmd = `NAND; #1000 nand_test();
-    
+    a = 32'sb1101111; b = 32'sb1111100; cmd = `NAND; #10000 nand_test();
+
 
     /**************************** AND Logic Test ****************************/
-    a = 32'sb1101111; b = 32'sb1111100; cmd = `AND; #1000 and_test();
-    
+    a = 32'sb1101111; b = 32'sb1111100; cmd = `AND; #10000 and_test();
+
 
     /**************************** NOR Logic Test ****************************/
-    a = 32'sb1101111; b = 32'sb1111100; cmd = `NOR; #1000 nor_test();
+    a = 32'sb1101111; b = 32'sb1111100; cmd = `NOR; #10000 nor_test();
 
     /**************************** OR Logic Test ****************************/
-    a = 32'sb1101111; b = 32'sb1111100; cmd = `OR; #1000 or_test();
+    a = 32'sb1101111; b = 32'sb1111100; cmd = `OR; #10000 or_test();
   end
 endmodule
