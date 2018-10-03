@@ -110,10 +110,10 @@ input[2:0]    command
 
   wire[30:0] Cout;
   wire [2:0] muxindex, ALUcommand;
-  wire invertB, invertOut, set;
+  wire invertB, invertOut, set_out, set_in, ovf_internal;
   ALUcontrolLUT control(.muxindex(muxindex), .invertB(invertB), .invertOut(invertOut), .ALUcommand(command));
 
-  ALU_slice aluOneBit0(.result(result[0]), .carryout(Cout[0]), .a(operandA[0]), .b(operandB[0]), .carryin(invertB), .slt(set), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
+  ALU_slice aluOneBit0(.result(result[0]), .carryout(Cout[0]), .a(operandA[0]), .b(operandB[0]), .carryin(invertB), .slt(set_in), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
   ALU_slice aluOneBit1(.result(result[1]), .carryout(Cout[1]), .a(operandA[1]), .b(operandB[1]), .carryin(Cout[0]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
   ALU_slice aluOneBit2(.result(result[2]), .carryout(Cout[2]), .a(operandA[2]), .b(operandB[2]), .carryin(Cout[1]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
   ALU_slice aluOneBit3(.result(result[3]), .carryout(Cout[3]), .a(operandA[3]), .b(operandB[3]), .carryin(Cout[2]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
@@ -144,9 +144,10 @@ input[2:0]    command
   ALU_slice aluOneBit28(.result(result[28]), .carryout(Cout[28]), .a(operandA[28]), .b(operandB[28]), .carryin(Cout[27]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
   ALU_slice aluOneBit29(.result(result[29]), .carryout(Cout[29]), .a(operandA[29]), .b(operandB[29]), .carryin(Cout[28]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
   ALU_slice aluOneBit30(.result(result[30]), .carryout(Cout[30]), .a(operandA[30]), .b(operandB[30]), .carryin(Cout[29]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
-  ALU_slice_MSB aluOneBit31(.result(result[31]), .carryout(carryout), .set(set), .a(operandA[31]), .b(operandB[31]), .carryin(Cout[30]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
+  ALU_slice_MSB aluOneBit31(.result(result[31]), .carryout(carryout), .set(set_out), .a(operandA[31]), .b(operandB[31]), .carryin(Cout[30]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
 
   `XOR ovf(overflow, carryout, Cout[30]);
+  `XOR slt_logic(set_in, overflow, set_out);
   `NOR32 zero_out(zero, result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8],result[9],result[10],result[11],result[12],result[13],result[14],result[15],result[16],result[17],result[18],result[19],result[20],result[21],result[22],result[23],result[24],result[25],result[26],result[27],result[28],result[29],result[30],result[31]);
 endmodule
 

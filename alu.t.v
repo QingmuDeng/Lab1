@@ -32,9 +32,13 @@ module testALU();
 
   // endtask
 
-  // task overflow_test;
+  task overflow_test;
+    if(!ovf) $display("Overflow Arithmetic Operation didn't incur overflow with a=%d and b=%d", a, b);
+  endtask
 
-  // endtask
+  task logic_overflow_test;
+    if(ovf) $display("Logic Operation incurred overflow with command %b", cmd);
+  endtask
 
   task add_test;
     begin
@@ -92,7 +96,6 @@ module testALU();
     end
   endtask
 
-
   initial begin
     $dumpfile("alu.vcd");
     $dumpvars(0, dut);
@@ -140,10 +143,10 @@ module testALU();
 
 
     // Overflow Tests
-    a = 32'sd2147483647; b = 32'sd1; cmd = `ADD; #10000 add_test();
+    a = 32'sd2147483647; b = 32'sd1; cmd = `ADD; #10000 add_test(); overflow_test();
     // $display("%d    %d     %d  |  %d   %d    %d    %d   |   Overflow", a, b, cmd, res, cout, ovf, zero);
 
-    a = -32'sd2147483648; b = -32'sd1; cmd = `ADD; #10000 add_test();
+    a = -32'sd2147483648; b = -32'sd1; cmd = `ADD; #10000 add_test(); overflow_test();
     // $display("%d    %d     %d  |  %d   %d    %d    %d   |   Overflow", a, b, cmd, res, cout, ovf, zero);
 
 
@@ -189,10 +192,10 @@ module testALU();
     // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -274", a, b, cmd, res, cout, ovf, zero);
 
     // Overflow Tests
-    a = -32'sd2147483648; b = 32'sd30; cmd = `SUB; #10000 subtractor_test();
+    a = -32'sd2147483648; b = 32'sd30; cmd = `SUB; #10000 subtractor_test(); overflow_test();
     // $display("%d    %d     %d  |  %d   %d    %d    %d   |   Overflow", a, b, cmd, res, cout, ovf, zero);
 
-    a = 32'sd2147483647; b = -32'sd3; cmd = `SUB; #10000 subtractor_test();
+    a = 32'sd2147483647; b = -32'sd3; cmd = `SUB; #10000 subtractor_test(); overflow_test();
     // $display("%d    %d     %d  |  %d   %d    %d    %d   |   Overflow", a, b, cmd, res, cout, ovf, zero);
 
     /**************************** Set Less Than Test ****************************/
@@ -220,23 +223,49 @@ module testALU();
     a = -32'sd23423; b = 32'sd43213; cmd = `SLT; #10000 stl_test();
     // $display("%d    %d     %d  |  %d   %d    %d    %d   |   1", a, b, cmd, res, cout, ovf, zero);
 
+    a = 32'sd2147483647; b = -32'sd3; cmd = `SLT; #10000 stl_test(); overflow_test();
+
+    a = -32'sd2147483648; b = 32'sd30; cmd = `SLT; #10000 stl_test(); overflow_test();
+
 
     /**************************** XOR Logic Test ****************************/
-    a = 32'sd4; b = 32'sd2; cmd = `XOR; #10000 xor_test();
+    a = 32'shF0F0F0F0; b = 32'shF0F0F0F0; cmd = `XOR; #10000 xor_test(); logic_overflow_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    a = 32'sh0F0F0F0F; b = 32'shF0F0F0F0; cmd = `XOR; #10000 xor_test(); logic_overflow_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    a = 32'sh0F0F0F0F; b = 32'sh0F0F0F0F; cmd = `XOR; #10000 xor_test(); logic_overflow_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    a = 32'shFFFFFFFF; b = 32'shFFFFFFFF; cmd = `XOR; #10000 xor_test(); logic_overflow_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
+    a = 32'sh00000000; b = 32'sh00000000; cmd = `XOR; #10000 xor_test(); logic_overflow_test();
     // $display("%d    %d     %d  |  %d   %d    %d    %d   |   2...", a, b, cmd, res, cout, ovf, zero);
 
     /**************************** NAND Logic Test ****************************/
-    a = 32'sb1101111; b = 32'sb1111100; cmd = `NAND; #10000 nand_test();
-
+    a = 32'shF0F0F0F0; b = 32'shF0F0F0F0; cmd = `NAND; #10000 nand_test(); logic_overflow_test();
+    a = 32'sh0F0F0F0F; b = 32'shF0F0F0F0; cmd = `NAND; #10000 nand_test(); logic_overflow_test();
+    a = 32'sh0F0F0F0F; b = 32'sh0F0F0F0F; cmd = `NAND; #10000 nand_test(); logic_overflow_test();
+    a = 32'shFFFFFFFF; b = 32'shFFFFFFFF; cmd = `NAND; #10000 nand_test(); logic_overflow_test();
+    a = 32'sh00000000; b = 32'sh00000000; cmd = `NAND; #10000 nand_test(); logic_overflow_test();
 
     /**************************** AND Logic Test ****************************/
-    a = 32'sb1101111; b = 32'sb1111100; cmd = `AND; #10000 and_test();
-
+    a = 32'shF0F0F0F0; b = 32'shF0F0F0F0; cmd = `AND; #10000 and_test(); logic_overflow_test();
+    a = 32'sh0F0F0F0F; b = 32'shF0F0F0F0; cmd = `AND; #10000 and_test(); logic_overflow_test();
+    a = 32'sh0F0F0F0F; b = 32'sh0F0F0F0F; cmd = `AND; #10000 and_test(); logic_overflow_test();
+    a = 32'shFFFFFFFF; b = 32'shFFFFFFFF; cmd = `AND; #10000 and_test(); logic_overflow_test();
+    a = 32'sh00000000; b = 32'sh00000000; cmd = `AND; #10000 and_test(); logic_overflow_test();
 
     /**************************** NOR Logic Test ****************************/
-    a = 32'sb1101111; b = 32'sb1111100; cmd = `NOR; #10000 nor_test();
+    a = 32'shF0F0F0F0; b = 32'shF0F0F0F0; cmd = `NOR; #10000 nor_test(); logic_overflow_test();
+    a = 32'sh0F0F0F0F; b = 32'shF0F0F0F0; cmd = `NOR; #10000 nor_test(); logic_overflow_test();
+    a = 32'sh0F0F0F0F; b = 32'sh0F0F0F0F; cmd = `NOR; #10000 nor_test(); logic_overflow_test();
+    a = 32'shFFFFFFFF; b = 32'shFFFFFFFF; cmd = `NOR; #10000 nor_test(); logic_overflow_test();
+    a = 32'sh00000000; b = 32'sh00000000; cmd = `NOR; #10000 nor_test(); logic_overflow_test();
 
     /**************************** OR Logic Test ****************************/
-    a = 32'sb1101111; b = 32'sb1111100; cmd = `OR; #10000 or_test();
+    a = 32'shF0F0F0F0; b = 32'shF0F0F0F0; cmd = `OR; #10000 or_test(); logic_overflow_test();
+    a = 32'sh0F0F0F0F; b = 32'shF0F0F0F0; cmd = `OR; #10000 or_test(); logic_overflow_test();
+    a = 32'sh0F0F0F0F; b = 32'sh0F0F0F0F; cmd = `OR; #10000 or_test(); logic_overflow_test();
+    a = 32'shFFFFFFFF; b = 32'shFFFFFFFF; cmd = `OR; #10000 or_test(); logic_overflow_test();
+    a = 32'sh00000000; b = 32'sh00000000; cmd = `OR; #10000 or_test(); logic_overflow_test();
   end
 endmodule
