@@ -123,8 +123,8 @@ module testALU();
     // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -12", a, b, cmd, res, cout, ovf, zero);
 
     // Adding a positive integer to a negative integer to get a negative integer
-    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -2", a, b, cmd, res, cout, ovf, zero);
     a = 32'sd5; b = -32'sd7; cmd = `ADD; #10000 add_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   -2", a, b, cmd, res, cout, ovf, zero);
 
     // Adding zero to a positive integer
     a = 32'sd0; b = 32'sd1321; cmd = `ADD; #10000 add_test();
@@ -140,8 +140,8 @@ module testALU();
 
 
     // Overflow Tests
-    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   Overflow", a, b, cmd, res, cout, ovf, zero);
     a = 32'sd2147483647; b = 32'sd1; cmd = `ADD; #10000 add_test();
+    // $display("%d    %d     %d  |  %d   %d    %d    %d   |   Overflow", a, b, cmd, res, cout, ovf, zero);
 
     a = -32'sd2147483648; b = -32'sd1; cmd = `ADD; #10000 add_test();
     // $display("%d    %d     %d  |  %d   %d    %d    %d   |   Overflow", a, b, cmd, res, cout, ovf, zero);
