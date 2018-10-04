@@ -20,6 +20,7 @@
 
 `include "adder_1bit.v"
 
+// One Bit of the ALU
 module ALU_slice
 (
   output result,  // 2's complement sum of a and b
@@ -47,6 +48,7 @@ module ALU_slice
   multiplexer mux(result, addSubtract, xorgate, slt, nandOut, norOut, muxindex);
 endmodule
 
+// Slice for most significant bit in ALU, needed to for the Set Less Than Operation
 module ALU_slice_MSB
 (
   output result,  // 2's complement sum of a and b
@@ -75,6 +77,7 @@ module ALU_slice_MSB
   multiplexer mux(result, set, xorgate, slt, nandOut, norOut, muxindex);
 endmodule
 
+// Lookup table: keeps track of when to invert the second input and/or output
 module ALUcontrolLUT
 (
   output reg[2:0] 	muxindex,
@@ -85,10 +88,10 @@ module ALUcontrolLUT
 
   always @(ALUcommand) begin
     case (ALUcommand)
-      `ADD:  begin muxindex = 0; invertB=0; invertOut=0; end
-      `SUB:  begin muxindex = 0; invertB=1; invertOut=0; end
+      `ADD:        begin muxindex = 0; invertB=0; invertOut=0; end
+      `SUB:        begin muxindex = 0; invertB=1; invertOut=0; end
       `XORSIGNAL:  begin muxindex = 1; invertB=0; invertOut=0; end
-      `SLT:  begin muxindex = 2; invertB=1; invertOut=0; end
+      `SLT:        begin muxindex = 2; invertB=1; invertOut=0; end
       `ANDSIGNAL:  begin muxindex = 3; invertB=0; invertOut=1; end
       `NANDSIGNAL: begin muxindex = 3; invertB=0; invertOut=0; end
       `NORSIGNAL:  begin muxindex = 4; invertB=0; invertOut=0; end
@@ -97,6 +100,7 @@ module ALUcontrolLUT
   end
 endmodule
 
+// Bit-Slice ALU for 32 bits
 module ALU
 (
 output[31:0]  result,
@@ -123,14 +127,20 @@ input[2:0]    command
     end
   endgenerate
 
+  // ALU MSB with adder/subtractor results wired out for SLT logic
   ALU_slice_MSB aluOneBit31(.result(result[31]), .carryout(carryout), .set(set_out), .a(operandA[31]), .b(operandB[31]), .carryin(Cout[30]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
 
+
   `XOR ovf(overflow, carryout, Cout[30]);
+
+  // Set is true when A<B and false otherwise
   `XOR slt_logic(set_in, overflow, set_out);
+
+
   `NOR32 zero_out(zero, result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8],result[9],result[10],result[11],result[12],result[13],result[14],result[15],result[16],result[17],result[18],result[19],result[20],result[21],result[22],result[23],result[24],result[25],result[26],result[27],result[28],result[29],result[30],result[31]);
 endmodule
 
-
+// Multiplexer with 3 select inputs
 module multiplexer
 (
   output out,
