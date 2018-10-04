@@ -6,8 +6,10 @@
 `define AND and #30
 `define AND4 and #50 // 4 inputs plus inverter
 `define OR or #30
+`define OR3 or #40
 `define OR5 or #60 // 5 inputs plus inverter
 `define XOR xor #30
+`define AND3 and #40 // 3 inputs plus inverter
 
 `define ADD  3'd0
 `define SUB  3'd1
@@ -114,7 +116,7 @@ input[2:0]    command
 
   wire[30:0] Cout;
   wire [2:0] muxindex, ALUcommand;
-  wire invertB, invertOut, set_out, set_in, ovf_internal;
+  wire invertB, invertOut, set_out, set_in, ovf_internal, opOvf, addMode, subSltMode, ncmd0, ncmd1, ncmd2;
   ALUcontrolLUT control(.muxindex(muxindex), .invertB(invertB), .invertOut(invertOut), .ALUcommand(command));
 
   ALU_slice aluOneBit0(.result(result[0]), .carryout(Cout[0]), .a(operandA[0]), .b(operandB[0]), .carryin(invertB), .slt(set_in), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
@@ -130,13 +132,21 @@ input[2:0]    command
   // ALU MSB with adder/subtractor results wired out for SLT logic
   ALU_slice_MSB aluOneBit31(.result(result[31]), .carryout(carryout), .set(set_out), .a(operandA[31]), .b(operandB[31]), .carryin(Cout[30]), .slt(1'b0), .invertB(invertB), .invertOut(invertOut), .muxindex(muxindex));
 
+  // Ensures there is no overflow when performing a logic operation
+  `NOT cmd0inv(ncmd0, command[0]);
+  `NOT cmd1inv(ncmd1, command[1]);
+  `NOT cmd2inv(ncmd2, command[2]);
+  `AND modeAdd(addMode, ncmd2, ncmd1, ncmd0);
+  `AND3 modeSubSlt(subSltMode, ncmd2, command[0]);
+  `OR3 operation_ovf(opOvf, addMode, subSltMode);
 
-  `XOR ovf(overflow, carryout, Cout[30]);
+  `XOR ovf(ovf_internal, carryout, Cout[30]);
+  `AND ovf_out(overflow, ovf_internal, opOvf);
 
   // Set is true when A<B and false otherwise
   `XOR slt_logic(set_in, overflow, set_out);
 
-
+  // NOR all the results gives the zero output`
   `NOR32 zero_out(zero, result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8],result[9],result[10],result[11],result[12],result[13],result[14],result[15],result[16],result[17],result[18],result[19],result[20],result[21],result[22],result[23],result[24],result[25],result[26],result[27],result[28],result[29],result[30],result[31]);
 endmodule
 
