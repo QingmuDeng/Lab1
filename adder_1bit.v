@@ -3,14 +3,14 @@
 `define AND and #30
 `define NOR nor #20
 `define OR or #30
-`define XOR xor #20
+`define XOR xor #30
 
 module structuralFullAdder
 (
-    output sum, 
+    output sum,
     output carryout,
-    input a, 
-    input b, 
+    input a,
+    input b,
     input carryin
 );
     // Your adder code here
